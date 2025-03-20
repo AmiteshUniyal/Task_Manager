@@ -3,20 +3,27 @@ import Form from "./components/Form";
 import List from "./components/List";
 import MyPieChart from "./components/Piecharts";
 import axios from "axios";
+import { FaSpinner } from "react-icons/fa";
 
 
 export default function App() {
   const [tasks, setTasks] = useState([]);
   const [completedCount, setCompletedCount] = useState(0);
+  const [isLoading, setIsloading] = useState(false);
 
   useEffect(() => {
     const fetchTasks = async () => {
+      setIsloading(true);
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/tasks`);
         setTasks(response.data);
         setCompletedCount(response.data.filter((task) => task.complete).length);
-      } catch (error) {
+      } 
+      catch (error) {
         console.error("Error fetching tasks:", error);
+      }
+      finally{
+        setIsloading(false);
       }
     };
     fetchTasks();
@@ -75,7 +82,14 @@ export default function App() {
           </div>
 
           <div className="bg-white shadow-lg rounded-xl p-6 border-l-4 border-orange-500 h-auto min-h-[200px] max-h-[600px] overflow-y-auto">
-            <List tasks={tasks} removeTask={removeTask} toggleComplete={toggleComplete} />
+            {isLoading ? (
+              <div className="flex justify-center items-center">
+                <FaSpinner className="text-2xl text-green-600 animate-spin" />
+                Loading tasks...
+              </div>
+            ) : (
+              <List tasks={tasks} removeTask={removeTask} toggleComplete={toggleComplete} />
+            )}
           </div>
         </div>
 
